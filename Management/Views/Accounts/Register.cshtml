@@ -1,0 +1,67 @@
+﻿@model RegisterViewModel;
+@{
+    ViewData["Title"] = "Sign up";
+}
+@Html.AntiForgeryToken()
+<div class="w-50">
+    <form method="post" asp-controller="Accounts" asp-action="Register">
+        <!-- Username input -->
+        <div class="form-outline mb-4">
+            <label class="form-label" asp-for="UserName">Username</label>
+            <input type="text" asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName"></span>
+        </div>
+
+        <!-- Password input -->
+        <div class="form-outline mb-4">
+            <label class="form-label" asp-forfor="Password">Password</label>
+            <input type="password" asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password"></span>
+        </div>
+
+        <!-- Password input -->
+        <div class="form-outline mb-4">
+            <label class="form-label" asp-for="ConfirmPassword">Confirm Password</label>
+            <input type="password" asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword"></span>
+        </div>
+
+        <!-- 2 column grid layout for inline styling -->
+        @* <div class="row mb-4">
+        <div class="col">
+        <!-- Simple link -->
+        <a href="#!">Forgot password?</a>
+        </div>
+        </div> *@
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary btn-block mb-4">Register</button>
+
+        <!-- Register buttons -->
+        <div class="text-center">
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-facebook-f"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-google"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-twitter"></i>
+            </button>
+
+            <button type="button" class="btn btn-link btn-floating mx-1">
+                <i class="fab fa-github"></i>
+            </button>
+        </div>
+    </form>
+</div>
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}
