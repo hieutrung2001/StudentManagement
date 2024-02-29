@@ -30,6 +30,7 @@ namespace Management.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
@@ -43,7 +44,7 @@ namespace Management.Controllers
                     }
                     else
                     {
-                        return RedirectToAction("Index", "Students");
+                        return Json(model);
                     }
                 }
             }
@@ -57,6 +58,7 @@ namespace Management.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -67,7 +69,7 @@ namespace Management.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, false);
-                    return RedirectToAction("Index", "Students");
+                    return Json (result);
                 } else
                 {
                     foreach (var error in result.Errors)

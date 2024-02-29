@@ -1,59 +1,143 @@
 ﻿@model IEnumerable<Management.Models.Class>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Class List";
+    var data = new string[] { "American Football", "Badminton", "Basketball", "Cricket", "Football", "Golf", "Hockey", "Rugby", "Snooker", "Tennis" };
 }
 
-<h1>Index</h1>
+@Html.AntiForgeryToken()
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<!-- Create Class -->
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClassModal">
+    Create
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="createClassModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Add New Class</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <form method="post" id="formCreateClass">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group w-100">
+                                <label for="Name" class="control-label">Name</label>
+                                <input type="text" name="Name" id="Name" class="form-control" required />
+                            </div>
+                            <div class="form-group w-100">
+                                <label for="Description" class="control-label">Description</label>
+                                <textarea class="form-control" id="Description" name="Description" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group d-flex flex-row-reverse mt-3">
+                                <input type="button" value="Save" class="btn btn-primary" id="btnSubmit" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @* <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save</button>
+            </div> *@
+        </div>
+    </div>
+</div>
+
+<table id="classListTable" class="table table-striped">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.Students)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.State)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Created)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastUpdated)
-            </th>
-            <th></th>
+            <th>Option</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.State)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastUpdated)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Index" asp-controller="Students" asp-route-id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </a>
+                </td>
+                <td>
+                    @if (item.Students.Count() != 0)
+                    {
+                        @foreach (var s in item.Students)
+                        {
+                            <a asp-controller="Students" asp-action="Details" asp-route-id="@s.Id">@s.FullName | </a>
+                        }
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Enroll" asp-route-id="@item.Id">Enroll</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
+    <tfoot>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.Students)</th>
+            <th>@Html.DisplayNameFor(model => model.Description)</th>
+            <th>Option</th>
+        </tr>
+    </tfoot>
 </table>
+
+@section Scripts {
+    <script>
+        $(document).ready(() => {
+            new DataTable('#classListTable', {
+                lengthMenu: [
+                    [5, 10, 25, -1],
+                    [5, 10, 25, 'All']
+                ]
+            });
+
+            // create class
+            $("#btnSubmit").click(function (e) {
+                debugger;
+                var valData = $("#formCreateClass").serialize();
+                $.ajax({
+                    url: "/Classes/Create",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    type: "POST",
+                    contentType: "application /x-www-form-urlencoded;charset=utf-8",
+                    dataType: "JSON",
+                    data: valData,
+                    success: function (data) {
+                        if (data.status == "success") {
+                            alert(data.message);
+                            window.location = '/Classes/Index';
+                        } else {
+                            alert(data.message);
+                        }
+                    },
+                    error: function (error) {
+                        alert(error);
+                    }
+                });
+            });
+        });
+    </script>
+}

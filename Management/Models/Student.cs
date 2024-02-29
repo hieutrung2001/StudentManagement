@@ -30,6 +30,6 @@ namespace Management.Models
         [DataType(DataType.DateTime)]
         public DateTime? LastUpdated { get; set; }
 
-        public List<Class> Classes { get; set; }
+        public List<Class>? Classes { get; set; }
     }
 }

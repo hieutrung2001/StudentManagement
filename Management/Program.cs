@@ -10,6 +10,9 @@ builder.Services
     .AddDbContext<ManagementContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ManagementContext") ?? throw new InvalidOperationException("Connection string 'ManagementContext' not found.")));
 
+// auto mapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

@@ -4,7 +4,7 @@
 }
 @Html.AntiForgeryToken()
 <div class="w-50">
-    <form method="post" asp-controller="Accounts" asp-action="Register">
+    <form method="post" id="formData">
         <!-- Username input -->
         <div class="form-outline mb-4">
             <label class="form-label" asp-for="UserName">Username</label>
@@ -35,7 +35,7 @@
         </div> *@
 
         <!-- Submit button -->
-        <button type="submit" class="btn btn-primary btn-block mb-4">Register</button>
+        <button type="button" class="btn btn-primary btn-block mb-4" id="btnSubmit">Register</button>
 
         <!-- Register buttons -->
         <div class="text-center">
@@ -61,7 +61,24 @@
 
     <script>
         $(document).ready(function () {
-
+            $("#btnSubmit").click(function (e) {
+                debugger;
+                var valData = $("#formData").serialize();
+                $.ajax({
+                    url: "/Accounts/Register",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    type: "POST",
+                    contentType: "application /x-www-form-urlencoded;charset=utf-8",
+                    dataType: "JSON",
+                    data: valData,
+                    success: function (data) {
+                        window.location = "/Students/Index";
+                    },
+                    error: function (error) {
+                        alert(error.fail)
+                    }
+                });
+            });
         });
     </script>
 }

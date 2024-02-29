@@ -1,64 +1,86 @@
 ﻿@model IEnumerable<Management.Models.Student>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Student List";
 }
+@Html.AntiForgeryToken()
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createStudentModal">
+    Create
+</button>
 
-<h1>Index</h1>
+<!-- Modal -->
+<div class="modal fade" id="createStudentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Add New Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <form method="post" id="formCreateStudent">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group w-100">
+                                <label for="FullName" class="control-label">Full Name</label>
+                                <input type="text" name="FullName" id="FullName" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="Dob" class="control-label">Date Of Birth</label>
+                                <input type="date" name="Dob" id="Dob" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="PhoneNumber" class="control-label">Phone Number</label>
+                                <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="Address" class="control-label">Address</label>
+                                <input type="text" id="Address" name="Address" class="form-control" required />
+                            </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+                            <div class="form-group d-flex flex-row-reverse mt-3">
+                                <input type="button" value="Save" class="btn btn-primary" id="btnSubmit" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @* <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div> *@
+        </div>
+    </div>
+</div>
+
+<table id="studentListTable" class="table table-striped">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.FullName)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Dob)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </th>
+            <th>Class</th>
             <th>
                 @Html.DisplayNameFor(model => model.Address)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.State)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Created)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastUpdated)
-            </th>
-            <th></th>
+            <th>Option</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+    @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.FullName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Dob)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    @foreach (var c in item.Classes)
+                    {
+                        <a asp-controller="Classes" asp-action="Details" asp-route-id="@c.Id">@c.Name | </a>
+                    }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.State)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastUpdated)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -66,6 +88,63 @@
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
-}
+    }
     </tbody>
+    <tfoot>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>Class</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>Option</th>
+        </tr>
+    </tfoot>
 </table>
+
+@section Scripts {
+    <script>
+        // check phone
+        function isNumeric(str) {
+            if (typeof str != "string") return false // we only process strings!
+            return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+        }
+
+        $(document).ready(function () {
+            new DataTable('#studentListTable', {
+                lengthMenu: [
+                    [5, 10, 25, -1],
+                    [5, 10, 25, 'All']
+                ]
+            });
+
+            // create student
+            $("#btnSubmit").click(function (e) {
+                debugger;
+                var valData = $("#formCreateStudent").serialize();
+                $.ajax({
+                    url: "/Students/Create",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    type: "POST",
+                    contentType: "application /x-www-form-urlencoded;charset=utf-8",
+                    dataType: "JSON",
+                    data: valData,
+                    success: function (data) {
+                        if (data.status == "success") {
+                            alert(data.message);
+                            window.location = '/Students/Index';
+                        } else {
+                            alert(data.message);
+                        }
+                    },
+                    error: function (error) {
+                        alert(error);
+                    }
+                });
+            });
+        });
+    </script>
+}
