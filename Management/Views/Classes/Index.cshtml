@@ -75,7 +75,7 @@
                     </a>
                 </td>
                 <td>
-                    @if (item.Students.Count() != 0)
+                    @if (item.Students?.Count() != 0)
                     {
                         @foreach (var s in item.Students)
                         {
@@ -83,7 +83,6 @@
                         }
                     }
                 </td>
-                <td>@Html.DisplayFor(modelItem => item.Description)</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Enroll" asp-route-id="@item.Id">Enroll</a> |
@@ -98,7 +97,6 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th class="text-center">@Html.DisplayNameFor(model => model.Students)</th>
-            <th>@Html.DisplayNameFor(model => model.Description)</th>
             <th>Option</th>
         </tr>
     </tfoot>
