@@ -7,5 +7,6 @@ namespace Management.ViewModels.ClassModel
     {
         [DataType(DataType.DateTime)]
         public DateTime Created { get; set; } = DateTime.Now;
+        public List<int> StudentSelectList { get; set; }
     }
 }

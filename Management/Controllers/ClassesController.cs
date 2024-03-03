@@ -32,11 +32,46 @@ namespace Management.Controllers
             return View(await _context.Class.Include(c => c.Students).OrderByDescending(c => c.Created).ToListAsync());
         }
 
-        public IActionResult Enroll(int id)
+        public async Task<IActionResult> Create()
         {
-            var students = _context.Student.Include(c => c.Classes).ToList();
+            var students = _context.Student.Include(s => s.Classes).ToList();
             ViewBag.StudentSelectList = new SelectList(
                     items: students,
+                    dataValueField: nameof(Student.Id),
+                    dataTextField: nameof(Student.FullName)
+                );
+            return View();
+        }
+
+        public IActionResult Enroll(int id)
+        {
+            var students = _context.Student.Include(s => s.Classes).ToList();
+            List<Student> results = new List<Student>();
+            foreach (var item in students)
+            {
+                if (item.Classes.Count == 0)
+                {
+                    results.Add(item);
+                } else
+                {
+                    var check = false;
+                    foreach (var item1 in item.Classes)
+                    {
+                        if (item1.Id == id)
+                        {
+                            check = true;
+                            break;
+                        }
+
+                    }
+                    if (!check)
+                    {
+                        results.Add(item);
+                    }
+                }
+            }
+            ViewBag.StudentSelectList = new SelectList(
+                    items: results,
                     dataValueField: nameof(Student.Id),
                     dataTextField: nameof(Student.FullName)
                 );
@@ -96,14 +131,19 @@ namespace Management.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateViewModel model)
+        public async Task<IActionResult> Create([FromForm] string Name, [FromForm] List<string> StudentSelectList)
         {
             if (ModelState.IsValid)
             {
-                var c = _mapper.Map<Class>(model);
+                List<Student> results = new List<Student>();
+                foreach (var item in StudentSelectList)
+                {
+                    results.Add(_context.Student.Find(Int32.Parse(item)));
+                }
+                var c = new Class { Name = Name, Students = results };
                 _context.Add(c);
                 await _context.SaveChangesAsync();
-                return Json(new { status = "success", message = "Created class!" });
+                return Json(new { status = "success", message = "Successfully!" });
             }
             return Json(new { status = "error", message = "Error!" });
         }
